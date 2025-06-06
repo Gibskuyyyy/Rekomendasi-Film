@@ -185,6 +185,9 @@ ratings.isnull().sum()
 
 ratings.duplicated().sum()
 
+tfidf = TfidfVectorizer(stop_words='english', max_features=5000)
+tfidf_matrix = tfidf.fit_transform(movies['soup'])
+
 """# Membangun model
 
 tahap ini melakukan pembobotan dengan teknik TF-IDF.
@@ -194,11 +197,9 @@ saya menggunakan 2 model :`
 - Content-Based Filtering
 - Collaborative Filtering
 
-collaborative akan menampilkan RMSE sedangkan CBF tidak.
+collaborative akan menampilkan RMSE sedangkan CBF menampilkan precision, recall, dan f1-score.
 """
 
-tfidf = TfidfVectorizer(stop_words='english', max_features=5000)
-tfidf_matrix = tfidf.fit_transform(movies['soup'])
 cosine_sim = cosine_similarity(tfidf_matrix, tfidf_matrix)
 indices = pd.Series(movies.index, index=movies['title']).drop_duplicates()
 
@@ -216,6 +217,48 @@ print(content_recommend('Toy Story'))
 
 print("\nTop 10 Rekomendasi Film Berdasarkan Konten untuk 'The Dark Knight Rises':")
 print(content_recommend('The Dark Knight Rises'))
+
+from sklearn.metrics import precision_score, recall_score, f1_score
+
+def evaluate_content_based(recommendations, actual_movies, k=10):
+
+    top_k_recommendations = recommendations[:k]
+
+    recommended_set = set(top_k_recommendations)
+    actual_set = set(actual_movies)
+
+    true_positives = len(recommended_set.intersection(actual_set))
+
+    precision = true_positives / k if k > 0 else 0
+
+    if not actual_set:
+      recall = 1.0 if true_positives == 0 else 0.0
+    else:
+      recall = true_positives / len(actual_set)
+
+    if precision + recall == 0:
+        f1 = 0
+    else:
+        f1 = 2 * (precision * recall) / (precision + recall)
+
+    return precision, recall, f1
+
+recommended_movies_for_toy_story = content_recommend('Toy Story')
+
+toy_story_genres = movies[movies['title'] == 'Toy Story']['genres'].iloc[0]
+if isinstance(toy_story_genres, tuple):
+    toy_story_genres = list(toy_story_genres)
+
+actual_relevant_movies = movies[movies['genres'].apply(lambda genres_list: any(genre in genres_list for genre in toy_story_genres))]
+
+actual_relevant_movie_titles = actual_relevant_movies['title'].tolist()
+
+precision_ts, recall_ts, f1_ts = evaluate_content_based(recommended_movies_for_toy_story, actual_relevant_movie_titles)
+
+print(f"\nEvaluasi Rekomendasi Content-Based untuk 'Toy Story':")
+print(f"  Precision: {precision_ts:.4f}")
+print(f"  Recall: {recall_ts:.4f}")
+print(f"  F1-score: {f1_ts:.4f}")
 
 def collab_recommend(user_id, preds_df=preds_df, movies=movies, original_ratings=R_df):
     user_row = preds_df.iloc[user_id - 1]

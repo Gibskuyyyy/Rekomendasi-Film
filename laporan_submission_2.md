@@ -41,6 +41,16 @@ Beberapa file penting dari dataset ini:
 * **ratings.csv** – Data rating dari pengguna terhadap film
 * **links.csv** – Mapping antar ID di dataset
 
+Jumlah Kolom dan baris
+
+* **movies\_metadata.csv** – 10000 baris dan 24 kolom
+* **credits.csv** – 45476 baris dan 3 kolom
+* **keywords.csv** – 46419 baris dan 2 kolom
+* **ratings.csv** – 98929 baris dan 4 kolom
+* **links.csv** – 45843 baris dan 3 kolom
+
+tidak terdapat data yang hilang berdasarkan .describe() tidak terdapat nilai NaN pada setiap dataset.
+
 Beberapa variabel penting:
 
 * `title`: judul film
@@ -51,18 +61,21 @@ Beberapa variabel penting:
 * `keywords`: kata kunci dari film
 * `rating`: nilai rating yang diberikan pengguna
 
-Visualisasi distribusi rating dan vote average juga digunakan untuk memahami sebaran data. data awalnya berisi 10000-45000 data
+Visualisasi distribusi rating dan vote average juga digunakan untuk memahami sebaran data.
 
 ## Data Preparation
 
 Langkah-langkah preprocessing:
 
-* Memfilter dan menggabungkan file movies\_metadata, credits, dan keywords berdasarkan ID
+* Memfilter dan menggabungkan file movies\_metadata, credits, dan keywords berdasarkan ID, serta menghapus overview yang kosong.
+* mengubah id menjadi string sebelum di jadikan 1
 * Mengambil fitur penting: cast, crew (sutradara), genres, dan keywords menggunakan `ast.literal_eval`
 * Membuat kolom gabungan (`soup`) untuk digunakan dalam content-based filtering
 * Melakukan penghapusan data duplikat pada Movies
-* Membersihkan data rating dan memfilter hingga hanya userId ≤ 100 untuk efisiensi
+* penghapusan nilai kosong pada tmdbId, konversi tipe data tmdbId, dan proses grouping (groupby) untuk mendapatkan rata-rata rating per user-item.
+* Membersihkan data rating dan memfilter hingga hanya userId ≤ 1000 untuk efisiensi
 * Membuat pivot table user-item untuk collaborative filtering
+* Menggunakan TF-IDF vectorizer pada kolom `soup`
 
 Langkah-langkah ini penting untuk menyusun data agar sesuai dengan kebutuhan model rekomendasi.
 
@@ -70,7 +83,6 @@ Langkah-langkah ini penting untuk menyusun data agar sesuai dengan kebutuhan mod
 
 ### Content-Based Filtering
 
-* Menggunakan TF-IDF vectorizer pada kolom `soup`
 * Menghitung cosine similarity antar film
 * Menghasilkan Top-10 rekomendasi film yang mirip dengan film input pengguna
 
@@ -83,11 +95,30 @@ Langkah-langkah ini penting untuk menyusun data agar sesuai dengan kebutuhan mod
 ### Kelebihan dan Kekurangan
 
 * **Content-Based**: Tidak bergantung pada user lain, namun bisa membosankan karena terlalu mirip
+
+contoh rekomendasi 'Toy story' :
+
+'Toy Story 2', 'Small Soldiers', 'The Champ', 'Toys', 'Everything You Always Wanted to Know About Sex *But Were Afraid to Ask', 'Dolls', 'Take the Money and Run', 'The Transformers: The Movie', 'Stardust Memories', "Child's Play 3"
+
 * **Collaborative**: Lebih personal, tapi tidak bekerja baik untuk pengguna baru (cold start)
+
+contoh rekomendasi untuk pengguna 10 :
+
+'The Shawshank Redemption', 'Forrest Gump', 'Jurassic Park', 'Terminator 2: Judgment Day', 'Outbreak', 'GoldenEye', 'The Lion King', 'Braveheart', 'Crimson Tide', 'Speed'
 
 ## Evaluation
 
-### Metrik Evaluasi: RMSE (Root Mean Squared Error)
+### Metrik Evaluasi Content-Based : Precision@K, dan Recall@K
+
+setelah dihitung menghasilkan nilai rekomendasi content based untuk 'Toy Story':
+
+Precision : 0,8
+
+Recall : 0,0021
+
+F1-Score : 0,0041
+
+### Metrik Evaluasi Collaborative: RMSE (Root Mean Squared Error)
 
 Digunakan untuk mengukur perbedaan antara nilai rating yang diprediksi dan rating asli pada data uji.
 
