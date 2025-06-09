@@ -49,7 +49,18 @@ Jumlah Kolom dan baris
 * **ratings.csv** – 98929 baris dan 4 kolom
 * **links.csv** – 45843 baris dan 3 kolom
 
-tidak terdapat data yang hilang berdasarkan .describe() tidak terdapat nilai NaN pada setiap dataset.
+terdapat nilai nilai yang hilang, seperti :
+
+- belongs_to_collection	: 8579
+- homepage	: 9338
+- imdb_id	: 1
+- overview	: 29
+- poster_path	: 31
+- release_date	: 5
+- runtime	: 6
+- status	: 8
+- tagline	: 3108
+- tmdbId	: 219
 
 Beberapa variabel penting:
 
@@ -61,19 +72,70 @@ Beberapa variabel penting:
 * `keywords`: kata kunci dari film
 * `rating`: nilai rating yang diberikan pengguna
 
+berikut isi dari dataset utamanya :
+
+- adult: Menunjukkan apakah film ditujukan untuk penonton dewasa (konten eksplisit). Bernilai True atau False.
+
+- belongs_to_collection: Informasi apakah film merupakan bagian dari suatu koleksi film/franchise. Jika ada, biasanya berbentuk string JSON (berisi nama koleksi, ID, dll).
+
+- budget: Anggaran produksi film dalam satuan USD. Tipe data numerik (int64).
+
+- genres: Genre film dalam bentuk daftar objek JSON. Contoh: [{"id": 28, "name": "Action"}].
+
+- homepage: URL resmi dari film tersebut, jika tersedia.
+
+- id: ID unik film dalam database (biasanya dari TMDb). Tipe numerik (int64).
+
+- imdb_id: ID film pada situs IMDb (Internet Movie Database), digunakan untuk pencocokan lintas platform.
+
+- original_language: Kode bahasa asli film (contoh: 'en' untuk Inggris, 'fr' untuk Prancis).
+
+- original_title: Judul asli film, sesuai bahasa aslinya.
+
+- overview: Ringkasan atau sinopsis singkat dari film.
+
+- popularity: Skor popularitas berdasarkan metrik TMDb yang mencakup view, like, dan interaksi lainnya.
+
+- poster_path: Path (alamat relatif) ke poster film, biasanya dapat digunakan bersama dengan domain TMDb untuk menampilkan gambar.
+
+- production_companies: Daftar rumah produksi yang membuat film. Bentuknya biasanya string JSON.
+
+- production_countries: Negara tempat produksi film dilakukan. Bentuknya juga string JSON.
+
+- release_date: Tanggal rilis resmi film (format: YYYY-MM-DD).
+
+- revenue: Pendapatan kotor yang dihasilkan film di seluruh dunia (dalam USD).
+
+- runtime: Durasi film dalam satuan menit.
+
+- spoken_languages: Bahasa yang digunakan dalam film. Format: daftar objek JSON dengan kode dan nama bahasa.
+
+- status: Status rilis film. Contoh: 'Released', 'Post Production', 'Rumored'.
+
+- tagline: Slogan atau kalimat promosi pendek dari film (sering muncul di poster).
+
+- title: Judul film (bisa berbeda dari original_title jika diterjemahkan untuk distribusi internasional).
+
+- video: Bernilai True jika entri mengacu pada konten video (biasanya selalu False untuk film reguler).
+
+- vote_average: Rata-rata skor rating dari pengguna TMDb terhadap film tersebut.
+
+- vote_count: Jumlah total pengguna yang memberikan rating terhadap film.
+
 Visualisasi distribusi rating dan vote average juga digunakan untuk memahami sebaran data.
 
 ## Data Preparation
 
 Langkah-langkah preprocessing:
 
+* Membersihkan data rating dan memfilter hingga hanya userId ≤ 1000 untuk efisiensi
 * Memfilter dan menggabungkan file movies\_metadata, credits, dan keywords berdasarkan ID, serta menghapus overview yang kosong.
 * mengubah id menjadi string sebelum di jadikan 1
 * Mengambil fitur penting: cast, crew (sutradara), genres, dan keywords menggunakan `ast.literal_eval`
 * Membuat kolom gabungan (`soup`) untuk digunakan dalam content-based filtering
+* Melakukan konversi kepada beberapa list (cast, genres, keywords) menjadi tuple movies
 * Melakukan penghapusan data duplikat pada Movies
 * penghapusan nilai kosong pada tmdbId, konversi tipe data tmdbId, dan proses grouping (groupby) untuk mendapatkan rata-rata rating per user-item.
-* Membersihkan data rating dan memfilter hingga hanya userId ≤ 1000 untuk efisiensi
 * Membuat pivot table user-item untuk collaborative filtering
 * Menggunakan TF-IDF vectorizer pada kolom `soup`
 
@@ -127,7 +189,7 @@ $RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n}(y_i - \hat{y}_i)^2}$
 
 Hasil evaluasi:
 
-* RMSE pada Collaborative Filtering ≈ *2.1584*
+* RMSE pada Collaborative Filtering ≈ *2.1458*
 
 Distribusi rating pengguna juga divisualisasikan untuk mendukung pemahaman terhadap performa model.
 

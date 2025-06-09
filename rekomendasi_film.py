@@ -67,11 +67,15 @@ movies_metadata_df.head()
 
 movies_metadata_df.info()
 
+movies_metadata_df.isnull().sum()
+
 movies_metadata_df.describe()
 
 credits_df.head()
 
 credits_df.info()
+
+credits_df.isnull().sum()
 
 credits_df.describe()
 
@@ -79,17 +83,23 @@ keywords_df.head()
 
 keywords_df.info()
 
+keywords_df.isnull().sum()
+
 keywords_df.describe()
 
 ratings_df.head()
 
 ratings_df.info()
 
+ratings_df.isnull().sum()
+
 ratings_df.describe()
 
 links_df.head()
 
 links_df.info()
+
+links_df.isnull().sum()
 
 links_df.describe()
 
